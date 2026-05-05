@@ -4,8 +4,10 @@ sqlalchemy
 alembic
 psycopg2-binary
 python-dotenv
-passlib[bcrypt]
+passlib==1.7.4
+bcrypt==4.0.1
 python-jose[cryptography]
 pydantic[email]
 prophet
 pandas
+holidays

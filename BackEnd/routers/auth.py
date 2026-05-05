@@ -16,13 +16,17 @@ def register(data: ShopRegister, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     shop = Shop(
-        name=data.name,
-        owner_name=data.owner_name,
-        email=data.email,
-        hashed_password=hash_password(data.password),
-        state=data.state,
-        district=data.district,
-        city=data.city,
+        shop_name       = data.shop_name,
+        owner_name      = data.owner_name,
+        email           = data.email,
+        hashed_password = hash_password(data.password),
+        phone           = data.phone,
+        address         = data.address,
+        state           = data.state,
+        district        = data.district,
+        city            = data.city,
+        pincode         = data.pincode,
+        gstin           = data.gstin,
     )
     db.add(shop)
     db.commit()
@@ -36,9 +40,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not shop or not verify_password(form_data.password, shop.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+            detail="Invalid email or password",
         )
-    token = create_access_token({"sub": str(shop.id)})
+    token = create_access_token({"sub": str(shop.shop_id)})
     return {"access_token": token, "token_type": "bearer"}
 
 

@@ -1,104 +1,126 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, model_validator
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
+from uuid import UUID
 
 
 # ─── Auth ────────────────────────────────────────────────────────────────────
 
 class ShopRegister(BaseModel):
-    name: str
+    shop_name:  str
     owner_name: str
-    email: EmailStr
-    password: str
-    state: Optional[str] = None
-    district: Optional[str] = None
-    city: Optional[str] = None
+    email:      EmailStr
+    password:   str
+    phone:      Optional[str] = None
+    address:    Optional[str] = None
+    state:      Optional[str] = None
+    district:   Optional[str] = None
+    city:       Optional[str] = None
+    pincode:    Optional[str] = None
+    gstin:      Optional[str] = None
 
 class ShopLogin(BaseModel):
-    email: EmailStr
+    email:    EmailStr
     password: str
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type:   str = "bearer"
 
 class ShopOut(BaseModel):
-    id: int
-    name: str
+    shop_id:    UUID
+    shop_name:  str
     owner_name: str
-    email: str
-    state: Optional[str]
-    district: Optional[str]
-    city: Optional[str]
+    email:      str
+    phone:      Optional[str]
+    state:      Optional[str]
+    district:   Optional[str]
+    city:       Optional[str]
     created_at: datetime
 
     class Config:
         from_attributes = True
 
 
-# ─── Products ─────────────────────────────────────────────────────────────────
+# ─── Products ────────────────────────────────────────────────────────────────
 
 class ProductCreate(BaseModel):
-    name: str
-    category: Optional[str] = None
-    unit: Optional[str] = "units"
-    current_stock: Optional[float] = 0.0
+    product_name:      str
+    category:          Optional[str]   = None   # pass category name e.g. "potato_chips"
+    unit:              Optional[str]   = "units"
+    current_stock:     Optional[float] = 0.0
     reorder_threshold: Optional[float] = 10.0
-    cost_price: Optional[float] = None
-    selling_price: Optional[float] = None
+    cost_price:        Optional[float] = None
+    selling_price:     Optional[float] = None
+    sku_code:          Optional[str]   = None
 
 class ProductUpdate(BaseModel):
-    name: Optional[str] = None
-    category: Optional[str] = None
-    unit: Optional[str] = None
-    current_stock: Optional[float] = None
+    product_name:      Optional[str]   = None
+    category:          Optional[str]   = None   # pass category name to update
+    unit:              Optional[str]   = None
+    current_stock:     Optional[float] = None
     reorder_threshold: Optional[float] = None
-    cost_price: Optional[float] = None
-    selling_price: Optional[float] = None
+    cost_price:        Optional[float] = None
+    selling_price:     Optional[float] = None
+    sku_code:          Optional[str]   = None
 
 class ProductOut(BaseModel):
-    id: int
-    shop_id: int
-    name: str
-    category: Optional[str]
-    unit: str
-    current_stock: float
+    product_id:        UUID
+    shop_id:           UUID
+    product_name:      str
+    category:          Optional[str]   # category name resolved from relationship
+    unit:              str
+    current_stock:     float
     reorder_threshold: float
-    cost_price: Optional[float]
-    selling_price: Optional[float]
-    needs_restock: bool = False   # computed field
+    cost_price:        Optional[float]
+    selling_price:     Optional[float]
+    sku_code:          Optional[str]
+    needs_restock:     bool = False
+
+    @model_validator(mode="after")
+    def compute_needs_restock(self):
+        self.needs_restock = self.current_stock < self.reorder_threshold
+        return self
 
     class Config:
         from_attributes = True
 
 
-# ─── Sales ────────────────────────────────────────────────────────────────────
+# ─── Sales ───────────────────────────────────────────────────────────────────
 
 class SaleCreate(BaseModel):
-    product_id: int
+    product_id:    UUID
     quantity_sold: float
-    sale_date: Optional[datetime] = None
-    notes: Optional[str] = None
+    sale_date:     Optional[date] = None
+    note:          Optional[str]  = None
 
 class SaleOut(BaseModel):
-    id: int
-    shop_id: int
-    product_id: int
+    log_id:        UUID
+    shop_id:       UUID
+    product_id:    UUID
     quantity_sold: float
-    sale_date: datetime
-    notes: Optional[str]
+    sale_date:     date
+    note:          Optional[str]
+    created_at:    datetime
 
     class Config:
         from_attributes = True
 
+class SaleSummary(BaseModel):
+    product_id:         UUID
+    product_name:       str
+    total_units_sold:   float
+    total_transactions: int
 
-# ─── Predictions ──────────────────────────────────────────────────────────────
+
+# ─── Predictions ─────────────────────────────────────────────────────────────
 
 class PredictionOut(BaseModel):
-    product_id: int
-    product_name: str
-    forecast_days: int
-    predicted_demand: float
-    current_stock: float
+    product_id:        UUID
+    product_name:      str
+    forecast_days:     int
+    predicted_demand:  float
+    current_stock:     float
     suggested_reorder: float
-    confidence: str   # "high" | "medium" | "low" based on data availability
+    confidence:        str
+    model_tier:        str

@@ -1,3 +1,4 @@
+
 -- ============================================================
 --  ShelfSense — PostgreSQL Database Schema
 -- ============================================================
@@ -16,6 +17,7 @@ CREATE TABLE shops (
     phone           VARCHAR(15) UNIQUE NOT NULL,
     email           VARCHAR(255) UNIQUE,
     address         TEXT,
+    hashed_password TEXT,
     city            VARCHAR(100),
     district        VARCHAR(100),
     state           VARCHAR(100),
@@ -69,8 +71,8 @@ CREATE TABLE products (
     product_name    VARCHAR(255) NOT NULL,
     sku_code        VARCHAR(100),                        -- barcode / custom SKU
     unit            VARCHAR(50) NOT NULL,                -- piece, kg, litre, packet
-    cost_price      NUMERIC(10, 2) NOT NULL,
-    selling_price   NUMERIC(10, 2) NOT NULL,
+    cost_price      NUMERIC(10, 2),
+    selling_price   NUMERIC(10, 2),
     tax_percent     NUMERIC(5, 2) DEFAULT 0,             -- GST %
     reorder_threshold INT DEFAULT 10,                    -- alert fires below this
     is_active       BOOLEAN DEFAULT TRUE,
@@ -263,3 +265,34 @@ INSERT INTO categories (name, description) VALUES
     ('bakery',        'Bread, cakes, rusk, toast'),
     ('pooja_items',   'Agarbatti, camphor, kumkum, diyas'),
     ('stationery',    'Pens, notebooks, staples, tape');
+
+
+ALTER TABLE products 
+ADD COLUMN current_stock FLOAT NOT NULL DEFAULT 0.0;
+
+-- reorder_threshold is INT in SQL but Float in model — cast it
+ALTER TABLE products 
+ALTER COLUMN reorder_threshold TYPE FLOAT;
+
+select * from products;
+
+ALTER TABLE products ALTER COLUMN cost_price DROP NOT NULL;
+ALTER TABLE products ALTER COLUMN selling_price DROP NOT NULL;
+
+
+-- 1. shops.phone — make nullable so registration works without phone
+ALTER TABLE shops ALTER COLUMN phone DROP NOT NULL;
+
+-- 2. products.cost_price and selling_price — already flagged, make nullable
+ALTER TABLE products ALTER COLUMN cost_price DROP NOT NULL;
+ALTER TABLE products ALTER COLUMN selling_price DROP NOT NULL;
+
+-- 3. sales_log.quantity_sold — INT will crash when inserting float quantities
+ALTER TABLE sales_log ALTER COLUMN quantity_sold TYPE FLOAT;
+
+-- 4. reorder_alerts — all three INT columns need to match Float in model
+ALTER TABLE reorder_alerts ALTER COLUMN current_stock TYPE FLOAT;
+ALTER TABLE reorder_alerts ALTER COLUMN threshold TYPE FLOAT;
+ALTER TABLE reorder_alerts ALTER COLUMN recommended_qty TYPE FLOAT;
+
+select * from products;
