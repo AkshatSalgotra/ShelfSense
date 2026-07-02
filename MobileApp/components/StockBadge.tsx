@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, BorderRadius, FontSize, FontWeight, Spacing } from '../constants/theme';
-import { StockStatus } from '../services/types';
+import { colors, radius, spacing, type } from '../constants/theme';
+
+export type StockStatus = 'CRITICAL' | 'WARNING' | 'HEALTHY';
 
 interface StockBadgeProps {
   status: StockStatus;
@@ -9,13 +10,13 @@ interface StockBadgeProps {
 }
 
 const STATUS_CONFIG = {
-  CRITICAL: { label: 'Critical', bg: Colors.criticalBg, text: Colors.critical },
-  WARNING:  { label: 'Warning',  bg: Colors.warningBg,  text: Colors.warning  },
-  HEALTHY:  { label: 'Healthy',  bg: Colors.successBg,  text: Colors.success  },
+  CRITICAL: { label: 'Critical', bg: colors.danger + '20', text: colors.danger },
+  WARNING:  { label: 'Warning',  bg: colors.warning + '20',  text: colors.warning  },
+  HEALTHY:  { label: 'Healthy',  bg: colors.primaryDim,  text: colors.primary  },
 };
 
 export default function StockBadge({ status, compact }: StockBadgeProps) {
-  const config = STATUS_CONFIG[status];
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.HEALTHY;
 
   return (
     <View style={[styles.badge, { backgroundColor: config.bg }]}>
@@ -29,10 +30,10 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    gap: spacing.xs,
   },
   dot: {
     width: 6,
@@ -40,8 +41,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   label: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
+    ...type.label,
+    fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },

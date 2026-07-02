@@ -1,8 +1,9 @@
 import pandas as pd
 import holidays
 from prophet import Prophet
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
+from datetime import datetime, date, timedelta
 from models.db_models import SalesLog, Product
 
 
@@ -80,58 +81,96 @@ def sales_to_daily_df(sales: List[SalesLog]) -> pd.DataFrame:
 
 # ─── Rule-Based Forecast ──────────────────────────────────────────────────────
 
-def rule_based_forecast(sales: List[SalesLog], forecast_days: int) -> float:
+def rule_based_forecast(sales: List[SalesLog], forecast_days: int) -> Tuple[float, List[dict]]:
+    start_date = date.today()
     if not sales:
-        return 0.0
+        # If no sales at all, return empty but with zeroed daily entries to satisfy graph
+        daily = []
+        for i in range(forecast_days):
+            d = start_date + timedelta(days=i+1)
+            daily.append({"date": d.isoformat(), "quantity": 0.0})
+        return 0.0, daily
+    
     total_sold = sum(s.quantity_sold for s in sales)
     dates = [s.sale_date for s in sales if s.sale_date]
+    
     if len(dates) < 2:
         avg_daily = total_sold
     else:
         date_range_days = (max(dates) - min(dates)).days or 1
         avg_daily = total_sold / date_range_days
-    return round(avg_daily * forecast_days, 2)
+    
+    total_predicted = round(avg_daily * forecast_days, 2)
+    
+    daily = []
+    for i in range(forecast_days):
+        d = start_date + timedelta(days=i+1)
+        daily.append({
+            "date": d.isoformat(),
+            "quantity": round(avg_daily, 2)
+        })
+        
+    return total_predicted, daily
 
 
 # ─── Prophet Fit + Predict ────────────────────────────────────────────────────
 
-def fit_and_predict(df: pd.DataFrame, forecast_days: int, holidays_df: pd.DataFrame) -> Optional[float]:
+def fit_and_predict(df: pd.DataFrame, forecast_days: int, holidays_df: pd.DataFrame) -> Optional[Tuple[float, List[dict]]]:
     try:
         if len(df) < 2:
             return None
+
+        # Determine how many years of data we have
+        date_range_years = (df["ds"].max() - df["ds"].min()).days / 365
+
+        # Yearly seasonality needs 2+ years to be reliable
+        if date_range_years >= 2:
+            yearly_seasonality = True
+        elif date_range_years >= 1.5:
+            yearly_seasonality = 4
+        else:
+            yearly_seasonality = False
+
         model = Prophet(
             holidays=holidays_df,
-            yearly_seasonality=True,
+            yearly_seasonality=yearly_seasonality,
             weekly_seasonality=True,
             daily_seasonality=False,
             changepoint_prior_scale=0.05,
         )
         model.fit(df)
+        
         future = model.make_future_dataframe(periods=forecast_days, freq="D")
-        forecast = model.predict(future)
-        predicted = forecast.tail(forecast_days)["yhat"].clip(lower=0).sum()
-        return round(float(predicted), 2)
+        forecast_df = model.predict(future)
+        
+        prediction_rows = forecast_df.tail(forecast_days)
+        predicted_sum = prediction_rows["yhat"].clip(lower=0).sum()
+        
+        daily_breakdown = []
+        for _, row in prediction_rows.iterrows():
+            daily_breakdown.append({
+                "date": row["ds"].date().isoformat(),
+                "quantity": round(max(float(row["yhat"]), 0), 2)
+            })
+            
+        return round(float(predicted_sum), 2), daily_breakdown
     except Exception:
         return None
 
 
 # ─── Tier 1: SKU-Level ────────────────────────────────────────────────────────
 
-def sku_forecast(sales: List[SalesLog], forecast_days: int, holidays_df: pd.DataFrame) -> Optional[float]:
-    if len(sales) < 20:
+def sku_forecast(sales: List[SalesLog], forecast_days: int, holidays_df: pd.DataFrame) -> Optional[Tuple[float, List[dict]]]:
+    if len(sales) < 15: # Lowered threshold slightly
         return None
     return fit_and_predict(sales_to_daily_df(sales), forecast_days, holidays_df)
 
 
 # ─── Tier 2: Category-Level ───────────────────────────────────────────────────
 
-def category_forecast(product: Product, forecast_days: int, holidays_df: pd.DataFrame, db: Session) -> float:
-    """
-    Borrows demand signal from sibling products in the same category.
-    Uses category_id FK — properly joined through the Category relationship.
-    """
+def category_forecast(product: Product, forecast_days: int, holidays_df: pd.DataFrame, db: Session) -> Tuple[float, List[dict]]:
     if not product.category_id:
-        return 0.0
+        return 0.0, []
 
     sibling_products = (
         db.query(Product)
@@ -144,7 +183,7 @@ def category_forecast(product: Product, forecast_days: int, holidays_df: pd.Data
     )
 
     if not sibling_products:
-        return 0.0
+        return 0.0, []
 
     sibling_ids = [p.product_id for p in sibling_products]
     sibling_sales = (
@@ -157,16 +196,28 @@ def category_forecast(product: Product, forecast_days: int, holidays_df: pd.Data
     )
 
     if not sibling_sales:
-        return 0.0
-
-    df = sales_to_daily_df(sibling_sales)
-    category_prediction = fit_and_predict(df, forecast_days, holidays_df)
-
-    if category_prediction is None:
-        category_prediction = rule_based_forecast(sibling_sales, forecast_days)
+        return 0.0, []
 
     num_products = len(sibling_products) + 1
-    return round(category_prediction / num_products, 2)
+    df = sales_to_daily_df(sibling_sales)
+    res = fit_and_predict(df, forecast_days, holidays_df)
+
+    if res:
+        total, daily = res
+        total_adj = round(total / num_products, 2)
+        daily_adj = [
+            {"date": d["date"], "quantity": round(d["quantity"] / num_products, 2)}
+            for d in daily
+        ]
+        return total_adj, daily_adj
+
+    total_rule, daily_rule = rule_based_forecast(sibling_sales, forecast_days)
+    total_adj = round(total_rule / num_products, 2)
+    daily_adj = [
+        {"date": d["date"], "quantity": round(d["quantity"] / num_products, 2)}
+        for d in daily_rule
+    ]
+    return total_adj, daily_adj
 
 
 # ─── Public Entry Point ───────────────────────────────────────────────────────
@@ -186,36 +237,45 @@ def generate_forecast(
     confidence = get_confidence_level(record_count)
     model_tier = "sku"
 
-    predicted_demand = sku_forecast(sales, forecast_days, holidays_df)
-
-    if predicted_demand is None:
+    res = sku_forecast(sales, forecast_days, holidays_df)
+    
+    if res:
+        predicted_demand, daily_forecast = res
+    else:
         model_tier = "category"
-        predicted_demand = category_forecast(product, forecast_days, holidays_df, db)
+        predicted_demand, daily_forecast = category_forecast(product, forecast_days, holidays_df, db)
 
+    # If category also failed, or predicted 0 but we have some local history, try rule-based on SKU
     if predicted_demand == 0.0 and record_count > 0:
         model_tier = "rule_based"
-        predicted_demand = rule_based_forecast(sales, forecast_days)
+        predicted_demand, daily_forecast = rule_based_forecast(sales, forecast_days)
+    
+    # Final safety: If still no forecast data, ensure we have an empty graph structure
+    if not daily_forecast:
+        _, daily_forecast = rule_based_forecast([], forecast_days)
 
     predicted_demand = predicted_demand or 0.0
-    suggested_reorder = max(predicted_demand - product.current_stock, 0.0)
-
-    # ── Write AI threshold back to the product ────────────────────────────
-    # This is the key link: forecasts feed back into inventory status
-    product.ai_reorder_threshold = round(predicted_demand, 2)
-    product.ai_suggested_reorder = round(suggested_reorder, 2)
-    try:
-        db.commit()
-        db.refresh(product)
-    except Exception:
-        db.rollback()  # don't let a write failure break the forecast response
+    
+    # RESOLVE REAL STOCK: Explicitly check inventory relationship
+    actual_stock = 0.0
+    if product.inventory:
+        actual_stock = float(product.inventory.current_stock or 0)
+    else:
+        actual_stock = float(product.current_stock or 0)
+    
+    # Calculation: suggested amount to restock
+    target_stock = max(predicted_demand, product.reorder_threshold)
+    recommended = target_stock - actual_stock
+    recommended = max(recommended, 0.0)
 
     return {
         "product_id":        product.product_id,
         "product_name":      product.product_name,
         "forecast_days":     forecast_days,
-        "predicted_demand":  round(predicted_demand, 2),
-        "current_stock":     product.current_stock,
-        "suggested_reorder": round(suggested_reorder, 2),
+        "total_predicted_demand": round(predicted_demand, 2),
+        "current_stock":     actual_stock,
+        "recommended_qty":   round(recommended, 2),
         "confidence":        confidence,
         "model_tier":        model_tier,
+        "daily_forecast":    daily_forecast
     }

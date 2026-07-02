@@ -1,0 +1,76 @@
+sku_code,product_name,category,unit,cost_price,selling_price
+AASWHO0001,Aashirvaad Whole Wheat Atta 5kg,staples,Bag,195,239.3
+AASWHO0002,Aashirvaad Whole Wheat Atta 10kg,staples,Bag,385,459.6
+INDGAT0003,India Gate Basmati Rice 1kg,staples,Packet,115,142.1
+INDGAT0004,India Gate Basmati Rice 5kg,staples,Bag,560,683.1
+FORSOY0005,Fortune Soya Oil 1L,staples,Bottle,140,162.3
+FORSOY0006,Fortune Soya Oil 5L,staples,Can,680,848.3
+TATSAM0007,Tata Sampann Toor Dal 1kg,staples,Packet,130,159.4
+TATSAM0008,Tata Sampann Chana Dal 1kg,staples,Packet,120,147.4
+MDHCHH0009,MDH Chhole Masala 100g,staples,Packet,38,44.0
+CATTUR0010,Catch Turmeric Powder 200g,staples,Packet,55,66.0
+CATRED0011,Catch Red Chilli Powder 100g,staples,Packet,45,53.0
+TATSAL0012,Tata Salt 1kg,staples,Packet,24,30.0
+PARBIS0013,Parle-G Biscuits 800g,snacks,Packet,58,70.0
+PARBIS0014,Parle-G Biscuits 100g,snacks,Packet,10,12.0
+BRIMAR0015,Britannia Marie Gold 200g,snacks,Packet,30,36.0
+MAGINS0016,Maggi Instant Noodles 70g,snacks,Packet,12,14.0
+MAGINS0017,Maggi Instant Noodles 4-pack,snacks,Pack,50,60.0
+LAYCLA0018,Lays Classic Salted 26g,snacks,Packet,18,21.0
+LAYMAS0019,Lays Masala 26g,snacks,Packet,18,22.0
+BINMAD0020,Bingo Mad Angles 90g,snacks,Packet,20,24.0
+HALALO0021,Haldiram's Aloo Bhujia 200g,snacks,Packet,45,55.0
+HALNAV0022,Haldiram's Navrattan Mixture 200g,snacks,Packet,45,53.0
+HALMOO0023,Haldiram's Moong Dal 200g,snacks,Packet,42,52.0
+BIKALO0024,Bikaji Aloo Bhujia 400g,snacks,Packet,85,105.0
+SUNDAR0025,Sunfeast Dark Fantasy 75g,snacks,Packet,30,37.0
+GOODAY0026,Good Day Butter Biscuits 200g,snacks,Packet,35,41.0
+KURMAS0027,Kurkure Masala Munch 90g,snacks,Packet,20,24.0
+MENCAN0028,Mentos Candy Roll,snacks,Roll,5,6.0
+COC2500029,Coca-Cola 250ml,beverages,Bottle,20,23.0
+COC5000030,Coca-Cola 500ml,beverages,Bottle,38,46.0
+PEP2500031,Pepsi 250ml,beverages,Bottle,20,24.0
+PEP5000032,Pepsi 500ml,beverages,Bottle,38,47.0
+SPR2500033,Sprite 250ml,beverages,Bottle,20,24.0
+MAAMAN0034,Maaza Mango 200ml,beverages,Tetrapak,18,21.0
+REAFRU0035,Real Fruit Juice Orange 200ml,beverages,Tetrapak,20,24.0
+BISMIN0036,Bisleri Mineral Water 1L,beverages,Bottle,20,23.0
+BISMIN0037,Bisleri Mineral Water 500ml,beverages,Bottle,12,14.0
+TATTEA0038,Tata Tea Gold 500g,beverages,Packet,195,233.5
+BROBON0039,Brooke Bond Red Label 500g,beverages,Packet,185,216.9
+NESCLA0040,Nescafé Classic 100g,beverages,Jar,220,267.7
+HOR5000041,Horlicks 500g,beverages,Jar,280,334.2
+AMUKOO0042,Amul Kool Mango Lassi 200ml,beverages,Bottle,30,37.0
+AMUBUT0043,Amul Butter 100g,dairy,Block,52,63.0
+AMUBUT0044,Amul Butter 500g,dairy,Block,255,301.2
+AMUPRO0045,Amul Processed Cheese 200g,dairy,Block,110,135.7
+MOTDAI0046,Mother Dairy Dahi 400g,dairy,Cup,42,52.0
+AMUMIT0047,Amul Mithai Mate 200g,dairy,Tin,85,101.0
+NESMIL0048,Nestlé Milkmaid 400g,dairy,Tin,92,108.0
+LUXSOA0049,Lux Soap 100g,personal_care,Bar,42,51.0
+LUXSOA0050,Lux Soap 150g,personal_care,Bar,62,72.0
+DOVSOA0051,Dove Soap 100g,personal_care,Bar,58,68.0
+COLTOO0052,Colgate Toothpaste 100g,personal_care,Tube,70,81.0
+COLTOO0053,Colgate Toothpaste 200g,personal_care,Tube,130,159.7
+CLIPLU0054,Clinic Plus Shampoo 200ml,personal_care,Bottle,140,170.3
+HEASHO0055,Head & Shoulders Shampoo 200ml,personal_care,Bottle,185,225.8
+NIVMOI0056,Nivea Moisturising Lotion 200ml,personal_care,Bottle,175,214.9
+DETANT0057,Dettol Antiseptic Liquid 250ml,personal_care,Bottle,105,125.6
+WHIULT0058,Whisper Ultra Pads 15pcs,personal_care,Pack,65,78.0
+PARCOC0059,Parachute Coconut Oil 200ml,personal_care,Bottle,95,111.0
+PONTAL0060,Pond's Talcum Powder 100g,personal_care,Bottle,65,75.0
+SUREXC0061,Surf Excel Easy Wash 1kg,household,Packet,160,194.7
+SUREXC0062,Surf Excel Easy Wash 500g,household,Packet,85,102.0
+ARIDET0063,Ariel Detergent Powder 1kg,household,Packet,180,217.2
+VIMDIS0064,Vim Dishwash Bar 300g,household,Bar,35,43.0
+HARTOI0065,Harpic Toilet Cleaner 500ml,household,Bottle,95,115.0
+GOOKNI0066,Good Knight Fast Card 10pcs,household,Pack,42,51.0
+MORMOS0067,Mortein Mosquito Coil 10pcs,household,Pack,45,54.0
+LIZFLO0068,Lizol Floor Cleaner 500ml,household,Bottle,125,147.5
+SCOSCR0069,Scotch-Brite Scrub Pad,household,Piece,35,40.0
+REY0450070,Reynolds 045 Pen Blue,household,Piece,7,8.0
+CADDAI0071,Cadbury Dairy Milk 40g,confectionery,Bar,42,49.0
+CAD5ST0072,Cadbury 5 Star 22g,confectionery,Bar,20,24.0
+KITKAT0073,Kit Kat 13g,confectionery,Bar,20,25.0
+MILBAR0074,Milky Bar 26g,confectionery,Bar,30,35.0
+RAJSIL0075,Rajnigandha Silver Pearls 4g,confectionery,Sachet,12,14.0

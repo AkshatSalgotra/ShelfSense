@@ -5,7 +5,7 @@ from typing import List
 
 from database import get_db
 from models.db_models import Product, Inventory
-from core.security import get_current_user
+from core.security import get_pos_actor
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -31,7 +31,7 @@ def search_products(
     q: str = Query(..., min_length=1),
     limit: int = Query(10, le=50),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_pos_actor),
 ):
     results = (
         db.query(Product, Inventory)
@@ -67,7 +67,7 @@ def search_products(
 def get_product_by_sku(
     sku_code: str,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_pos_actor),
 ):
     result = (
         db.query(Product, Inventory)

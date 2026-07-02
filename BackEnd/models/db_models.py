@@ -1,9 +1,9 @@
 import uuid
 from sqlalchemy import (
     Column, String, Integer, Numeric, Boolean, Text, Float,
-    ForeignKey, DateTime, Date, CheckConstraint, func, JSON
+    ForeignKey, DateTime, Date, CheckConstraint, func
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -107,11 +107,9 @@ class Product(Base):
     reorder_threshold = Column(Float, nullable=False, default=10.0)
     cost_price        = Column(Numeric(10, 2), nullable=True)
     selling_price     = Column(Numeric(10, 2), nullable=True)
-    is_active              = Column(Boolean, default=True)
-    ai_reorder_threshold   = Column(Float, nullable=True)   # ML-computed threshold (predicted demand)
-    ai_suggested_reorder   = Column(Float, nullable=True)   # ML-computed reorder qty (demand - stock)
-    created_at             = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at             = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    is_active         = Column(Boolean, default=True)
+    created_at        = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at        = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     shop      = relationship("Shop", back_populates="products")
     category  = relationship("Category", back_populates="products")
@@ -246,7 +244,7 @@ class Payment(Base):
     upi_ref          = Column(String(100))
     card_last4       = Column(String(4))
     gateway          = Column(String(50))
-    gateway_response = Column(JSON)
+    gateway_response = Column(JSONB)
     paid_at          = Column(DateTime, server_default=func.now())
 
     __table_args__ = (

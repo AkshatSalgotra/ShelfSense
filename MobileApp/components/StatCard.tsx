@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, BorderRadius, FontSize, FontWeight, Spacing, Shadow } from '../constants/theme';
+import { colors, type, spacing, radius, shadow } from '../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface StatCardProps {
@@ -19,9 +19,9 @@ export default function StatCard({ title, value, subtitle, icon, color, gradient
     : {};
 
   return (
-    <Wrapper style={[styles.card, Shadow.sm]} {...(wrapperProps as any)}>
+    <Wrapper style={[styles.card, shadow.sm]} {...(wrapperProps as any)}>
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: color ? `${color}20` : Colors.primaryLight + '20' }]}>
+        <View style={[styles.iconContainer, { backgroundColor: color ? `${color}20` : colors.primaryDim }]}>
           {icon}
         </View>
       </View>
@@ -34,38 +34,37 @@ export default function StatCard({ title, value, subtitle, icon, color, gradient
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.lg,
+    borderColor: colors.border,
+    padding: spacing.lg,
     flex: 1,
     minWidth: 140,
   },
   header: {
-    marginBottom: Spacing.md,
+    marginBottom: spacing.md,
   },
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: BorderRadius.md,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   value: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
-    color: Colors.text,
+    ...type.displaySm,
+    color: colors.textPrimary,
     marginBottom: 2,
+    fontFamily: type.mono.fontFamily,
   },
   title: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.medium,
-    color: Colors.textSecondary,
+    ...type.label,
+    color: colors.textSecondary,
   },
   subtitle: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
+    ...type.bodySm,
+    color: colors.textMuted,
     marginTop: 2,
   },
 });

@@ -6,7 +6,7 @@ from uuid import UUID
 from database import get_db
 from models.db_models import Shop, Product, SalesLog
 from schemas.pydantic_schemas import SaleCreate, SaleOut
-from core.security import get_current_shop
+from core.security import get_current_manager
 
 router = APIRouter(prefix="/sales", tags=["Sales"])
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/sales", tags=["Sales"])
 def log_sale(
     data: SaleCreate,
     db: Session = Depends(get_db),
-    shop: Shop = Depends(get_current_shop)
+    shop: Shop = Depends(get_current_manager)
 ):
     product = db.query(Product).filter(
         Product.product_id == data.product_id,
@@ -48,7 +48,7 @@ def log_sale(
 def get_sales(
     product_id: Optional[UUID] = None,
     db: Session = Depends(get_db),
-    shop: Shop = Depends(get_current_shop)
+    shop: Shop = Depends(get_current_manager)
 ):
     query = db.query(SalesLog).filter(SalesLog.shop_id == shop.shop_id)
     if product_id:
@@ -59,7 +59,7 @@ def get_sales(
 @router.get("/summary")
 def sales_summary(
     db: Session = Depends(get_db),
-    shop: Shop = Depends(get_current_shop)
+    shop: Shop = Depends(get_current_manager)
 ):
     """Returns total units sold and transaction count per product."""
     sales = db.query(SalesLog).filter(SalesLog.shop_id == shop.shop_id).all()

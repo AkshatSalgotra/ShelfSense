@@ -6,12 +6,12 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./shelfsense.db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# SQLite needs this extra arg; Postgres doesn't
-connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL not set in .env")
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

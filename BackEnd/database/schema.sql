@@ -296,7 +296,3 @@ ALTER TABLE reorder_alerts ALTER COLUMN threshold TYPE FLOAT;
 ALTER TABLE reorder_alerts ALTER COLUMN recommended_qty TYPE FLOAT;
 
 select * from products;
-
--- 9. AI-driven reorder columns
-ALTER TABLE products ADD COLUMN IF NOT EXISTS ai_reorder_threshold FLOAT;
-ALTER TABLE products ADD COLUMN IF NOT EXISTS ai_suggested_reorder FLOAT;
