@@ -146,6 +146,8 @@ An ER diagram is available at `BackEnd/database/er.png`.
 
 ## 👥 Contributors
 - [AkshatSalgotra](https://github.com/AkshatSalgotra)
+- [Aditya Dadhich](https://github.com/degenerate007)
+- [Keerthana](https://github.com/FriedIce-623)
 
 
 ---
